@@ -9,6 +9,7 @@ class SyncService {
 
   final SupabaseClient client;
   final Uuid _uuid = const Uuid();
+  static const String _namespaceUrl = '6ba7b811-9dad-11d1-80b4-00c04fd430c8';
 
   Future<void> pushSnapshot(AppSnapshot snapshot) async {
     final userId = snapshot.userId;
@@ -416,6 +417,6 @@ class SyncService {
   }
 
   String _historyWeeklyVowId(String cycleId, int index) {
-    return _uuid.v5(Namespace.url, 'xvow/history/$cycleId/$index');
+    return _uuid.v5(_namespaceUrl, 'xvow/history/$cycleId/$index');
   }
 }
