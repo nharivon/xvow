@@ -137,7 +137,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       if (mounted) {
         setState(
           () => _error =
-              'Impossible de démarrer l'inscription. Vérifiez la configuration Google OAuth.',
+              "Impossible de démarrer l'inscription. Vérifiez la configuration Google OAuth.",
         );
       }
     } finally {
