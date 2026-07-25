@@ -126,7 +126,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     });
     try {
       await ref.read(authServiceProvider).signInWithGoogle();
-      // Router will automatically redirect on successful auth
+      // Router wil automatically redirect on successful auth
     } on AuthException catch (e) {
       if (mounted) {
         setState(() {
