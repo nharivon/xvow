@@ -18,6 +18,12 @@ final authServiceProvider = Provider<AuthService>((ref) {
   return AuthService(Supabase.instance.client);
 });
 
+/// Provider to ensure user profile exists in Supabase
+final ensureProfileExistsProvider = FutureProvider<void>((ref) async {
+  final authService = ref.read(authServiceProvider);
+  await authService._ensureProfileExists();
+});
+
 class AuthService {
   AuthService(this.client);
 
