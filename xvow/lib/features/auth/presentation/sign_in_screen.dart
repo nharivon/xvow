@@ -135,7 +135,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     try {
       await ref.read(authServiceProvider).signInWithGoogle();
       // Router will automatically redirect on successful auth
-    } on AuthException catch (e) {
+    } on XvowAuthException catch (e) {
       if (mounted) {
         setState(() {
           _error = 'Erreur de connexion: ${e.message}';

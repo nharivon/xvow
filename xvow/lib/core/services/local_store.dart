@@ -1,27 +1,19 @@
 import 'dart:convert';
-import 'dart:io';
-
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/app_models.dart';
 
 class LocalStore {
   const LocalStore();
 
-  static const String _fileName = 'xvow_state.json';
-
-  Future<File> _file() async {
-    final directory = await getApplicationDocumentsDirectory();
-    return File(p.join(directory.path, _fileName));
-  }
+  static const String _storageKey = 'xvow_state_json';
 
   Future<AppSnapshot?> loadSnapshot() async {
-    final file = await _file();
-    if (!await file.exists()) {
+    final prefs = await SharedPreferences.getInstance();
+    final content = prefs.getString(_storageKey);
+    if (content == null) {
       return null;
     }
-    final content = await file.readAsString();
     if (content.trim().isEmpty) {
       return null;
     }
@@ -31,14 +23,12 @@ class LocalStore {
   }
 
   Future<void> saveSnapshot(AppSnapshot snapshot) async {
-    final file = await _file();
-    await file.writeAsString(snapshot.encode(), flush: true);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_storageKey, snapshot.encode());
   }
 
   Future<void> clear() async {
-    final file = await _file();
-    if (await file.exists()) {
-      await file.delete();
-    }
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_storageKey);
   }
 }

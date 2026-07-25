@@ -123,7 +123,7 @@ class AppController extends Notifier<AppState> {
     
     try {
       // Ensure user profile exists in Supabase (created on OAuth login)
-      await ref.read(ensureProfileExistsProvider.future);
+      await ref.read(ensureProfileExistsProvider(user).future);
     } catch (e) {
       // Log error but continue - local data takes precedence
       print('Error ensuring profile exists: $e');

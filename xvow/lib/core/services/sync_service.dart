@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
 
 import '../constants/app_constants.dart';
 import '../models/app_models.dart';
@@ -7,6 +8,7 @@ class SyncService {
   SyncService(this.client);
 
   final SupabaseClient client;
+  final Uuid _uuid = const Uuid();
 
   Future<void> pushSnapshot(AppSnapshot snapshot) async {
     final userId = snapshot.userId;
@@ -160,8 +162,9 @@ class SyncService {
             (entry) => entry.vowStats.asMap().entries.map((entryData) {
               final index = entryData.key;
               final vowStat = entryData.value;
+              final weeklyVowId = _historyWeeklyVowId(entry.id, index);
               return {
-                'id': '${entry.id}_$index',
+                'id': weeklyVowId,
                 'user_id': userId,
                 'weekly_cycle_id': entry.id,
                 'objective_id': vowStat.objectiveId,
@@ -184,7 +187,7 @@ class SyncService {
             (entry) => entry.vowStats.asMap().entries.expand((entryData) {
               final index = entryData.key;
               final vowStat = entryData.value;
-              final weeklyVowId = '${entry.id}_$index';
+              final weeklyVowId = _historyWeeklyVowId(entry.id, index);
               return List.generate(vowStat.checkedDays, (dayIndex) {
                 final checkedOn = DateTime(
                   entry.completedAt.year,
@@ -410,5 +413,9 @@ class SyncService {
       client.from('app_snapshots').delete().eq('user_id', userId),
       client.from('notification_tokens').delete().eq('user_id', userId),
     ]);
+  }
+
+  String _historyWeeklyVowId(String cycleId, int index) {
+    return _uuid.v5(Uuid.NAMESPACE_URL, 'xvow/history/$cycleId/$index');
   }
 }

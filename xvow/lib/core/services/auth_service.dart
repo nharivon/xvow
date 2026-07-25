@@ -19,9 +19,12 @@ final authServiceProvider = Provider<AuthService>((ref) {
 });
 
 /// Provider to ensure user profile exists in Supabase
-final ensureProfileExistsProvider = FutureProvider<void>((ref) async {
+final ensureProfileExistsProvider = FutureProvider.family<void, User>((
+  ref,
+  user,
+) async {
   final authService = ref.read(authServiceProvider);
-  await authService._ensureProfileExists();
+  await authService.ensureProfileExists(user: user);
 });
 
 class AuthService {
@@ -39,24 +42,24 @@ class AuthService {
 
       // On successful OAuth, ensure profile exists
       if (result) {
-        await _ensureProfileExists();
+        await ensureProfileExists();
       }
     } catch (e) {
-      throw AuthException('Google sign-in failed: ${e.toString()}');
+      throw XvowAuthException('Google sign-in failed: ${e.toString()}');
     }
   }
 
   /// Ensure user profile exists in Supabase after OAuth login
-  Future<void> _ensureProfileExists() async {
+  Future<void> ensureProfileExists({User? user}) async {
     try {
-      final user = client.auth.currentUser;
-      if (user == null) return;
+      final resolvedUser = user ?? client.auth.currentUser;
+      if (resolvedUser == null) return;
 
-      final userId = user.id;
-      final fullName = (user.userMetadata?['full_name'] ??
-          user.userMetadata?['name'] ??
+      final userId = resolvedUser.id;
+      final fullName = (resolvedUser.userMetadata?['full_name'] ??
+        resolvedUser.userMetadata?['name'] ??
           'User') as String;
-      final email = user.email ?? '';
+      final email = resolvedUser.email ?? '';
 
       // Check if profile already exists
       final existingProfile = await client
@@ -99,8 +102,8 @@ class AuthService {
   }
 }
 
-class AuthException implements Exception {
-  AuthException(this.message);
+class XvowAuthException implements Exception {
+  XvowAuthException(this.message);
   final String message;
 
   @override
