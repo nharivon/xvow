@@ -10,6 +10,26 @@ begin
 end;
 $$;
 
+create or replace function public.create_profile_for_new_user()
+returns trigger
+language plpgsql
+security definer
+as $$
+begin
+  insert into public.profiles (id, full_name, email)
+  values (
+    new.id,
+    coalesce(new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'name', 'User'),
+    coalesce(new.email, '')
+  )
+  on conflict (id) do update
+  set 
+    full_name = excluded.full_name,
+    email = excluded.email;
+  return new;
+end;
+$$;
+
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   full_name text not null default '',
@@ -296,3 +316,8 @@ create trigger set_tokens_updated_at
 before update on public.notification_tokens
 for each row
 execute function public.set_updated_at();
+
+create trigger create_profile_on_signup
+after insert on auth.users
+for each row
+execute function public.create_profile_for_new_user();

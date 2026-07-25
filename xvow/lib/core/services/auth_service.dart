@@ -23,11 +23,67 @@ class AuthService {
 
   final SupabaseClient client;
 
+  /// Sign in with Google OAuth and ensure profile is created
   Future<void> signInWithGoogle() async {
-    await client.auth.signInWithOAuth(
-      OAuthProvider.google,
-      redirectTo: kIsWeb ? Uri.base.origin : null,
-    );
+    try {
+      final result = await client.auth.signInWithOAuth(
+        OAuthProvider.google,
+        redirectTo: kIsWeb ? Uri.base.origin : null,
+      );
+
+      // On successful OAuth, ensure profile exists
+      if (result) {
+        await _ensureProfileExists();
+      }
+    } catch (e) {
+      throw AuthException('Google sign-in failed: ${e.toString()}');
+    }
+  }
+
+  /// Ensure user profile exists in Supabase after OAuth login
+  Future<void> _ensureProfileExists() async {
+    try {
+      final user = client.auth.currentUser;
+      if (user == null) return;
+
+      final userId = user.id;
+      final fullName = (user.userMetadata?['full_name'] ??
+          user.userMetadata?['name'] ??
+          'User') as String;
+      final email = user.email ?? '';
+
+      // Check if profile already exists
+      final existingProfile = await client
+          .from('profiles')
+          .select()
+          .eq('id', userId)
+          .maybeSingle();
+
+      if (existingProfile == null) {
+        // Create new profile with Google OAuth data
+        await client.from('profiles').insert({
+          'id': userId,
+          'full_name': fullName,
+          'email': email,
+          'push_enabled': true,
+          'discipline': 100,
+          'project_health': 100,
+          'current_streak': 0,
+          'total_xp': 0,
+          'total_penalties': 0,
+          'total_savings': 0,
+        });
+      } else {
+        // Update existing profile with latest Google data
+        await client.from('profiles').update({
+          'full_name': fullName.isEmpty ? existingProfile['full_name'] : fullName,
+          'email': email.isEmpty ? existingProfile['email'] : email,
+        }).eq('id', userId);
+      }
+    } catch (e) {
+      // Log but don't throw - profile creation should not block auth
+      print('Error ensuring profile exists: $e');
+    }
   }
 
   Future<void> signOut() => client.auth.signOut();
@@ -35,4 +91,12 @@ class AuthService {
   Future<void> deleteLocalSession() async {
     await client.auth.signOut();
   }
+}
+
+class AuthException implements Exception {
+  AuthException(this.message);
+  final String message;
+
+  @override
+  String toString() => message;
 }

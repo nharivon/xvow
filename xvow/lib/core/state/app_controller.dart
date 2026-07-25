@@ -120,11 +120,21 @@ class AppController extends Notifier<AppState> {
     }
 
     final userId = user.id;
+    
+    try {
+      // Ensure user profile exists in Supabase (created on OAuth login)
+      await _authService._ensureProfileExists();
+    } catch (e) {
+      // Log error but continue - local data takes precedence
+      print('Error ensuring profile exists: $e');
+    }
+
     final displayName =
         ((user.userMetadata?['full_name'] ?? user.userMetadata?['name'])
             as String?) ??
         'Utilisateur';
     final email = user.email ?? '';
+    
     final local = await _localStore.loadSnapshot();
     final nextSnapshot = (local != null && local.userId == userId)
         ? local.copyWith(
@@ -141,11 +151,12 @@ class AppController extends Notifier<AppState> {
           );
     state = state.copyWith(snapshot: nextSnapshot, clearError: true);
     await _maybeSyncPull();
-          if (nextSnapshot.pushEnabled) {
-            await _notificationService.syncRegistration(userId);
-          } else {
-            await _notificationService.clearRegistration(userId);
-          }
+    
+    if (nextSnapshot.pushEnabled) {
+      await _notificationService.syncRegistration(userId);
+    } else {
+      await _notificationService.clearRegistration(userId);
+    }
   }
 
   void setOnline(bool value) {

@@ -17,6 +17,25 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   String? _error;
 
   @override
+  void initState() {
+    super.initState();
+    // Listen for auth state changes and redirect if signup succeeds
+    _checkAuthState();
+  }
+
+  void _checkAuthState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.listen(authUserProvider, (previous, next) {
+        // Auth state changed, router will handle redirect
+        final user = next.asData?.value;
+        if (user != null && mounted) {
+          context.go('/app/focus');
+        }
+      });
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
@@ -68,9 +87,17 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     ),
                     if (_error != null) ...[
                       const SizedBox(height: 12),
-                      Text(
-                        _error!,
-                        style: const TextStyle(color: Colors.redAccent),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.redAccent),
+                        ),
+                        child: Text(
+                          _error!,
+                          style: const TextStyle(color: Colors.redAccent),
+                        ),
                       ),
                     ],
                   ],
@@ -91,17 +118,28 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   }
 
   Future<void> _signUp() async {
+    if (_loading) return;
+
     setState(() {
       _loading = true;
       _error = null;
     });
     try {
       await ref.read(authServiceProvider).signInWithGoogle();
+      // Router will automatically redirect on successful auth
+    } on AuthException catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = 'Erreur d\'inscription: ${e.message}';
+        });
+      }
     } catch (_) {
-      setState(
-        () => _error =
-            'Impossible de démarrer l’inscription. Vérifiez la configuration Google OAuth.',
-      );
+      if (mounted) {
+        setState(
+          () => _error =
+              'Impossible de démarrer l'inscription. Vérifiez la configuration Google OAuth.',
+        );
+      }
     } finally {
       if (mounted) {
         setState(() => _loading = false);
