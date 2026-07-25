@@ -15,24 +15,30 @@ class SignUpScreen extends ConsumerStatefulWidget {
 class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   bool _loading = false;
   String? _error;
+  ProviderSubscription<AsyncValue<User?>>? _authSubscription;
 
   @override
   void initState() {
     super.initState();
-    // Listen for auth state changes and redirect if signup succeeds
-    _checkAuthState();
+    _authSubscription = ref.listenManual<AsyncValue<User?>>(authUserProvider, (
+      previous,
+      next,
+    ) {
+      final user = next.asData?.value;
+      if (user != null && mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            context.go('/app/focus');
+          }
+        });
+      }
+    });
   }
 
-  void _checkAuthState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.listen(authUserProvider, (previous, next) {
-        // Auth state changed, router will handle redirect
-        final user = next.asData?.value;
-        if (user != null && mounted) {
-          context.go('/app/focus');
-        }
-      });
-    });
+  @override
+  void dispose() {
+    _authSubscription?.close();
+    super.dispose();
   }
 
   @override
