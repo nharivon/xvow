@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "227185220724",
+    "project_id": "xvow-91f1c",
+    "storage_bucket": "xvow-91f1c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:227185220724:android:b535d54cd342a60c95c521",
+        "android_client_info": {
+          "package_name": "build.gradle.kts"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2pYLT1F3MO32fX40EHT8RAes3_FO-ths"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:227185220724:android:ef19713966b538f395c521",
+        "android_client_info": {
+          "package_name": "com.example.xvow"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2pYLT1F3MO32fX40EHT8RAes3_FO-ths"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
