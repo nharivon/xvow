@@ -416,6 +416,6 @@ class SyncService {
   }
 
   String _historyWeeklyVowId(String cycleId, int index) {
-    return _uuid.v5(Uuid.NAMESPACE_URL, 'xvow/history/$cycleId/$index');
+    return _uuid.v5(Namespace.url, 'xvow/history/$cycleId/$index');
   }
 }

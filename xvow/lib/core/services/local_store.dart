@@ -6,6 +6,8 @@ import '../models/app_models.dart';
 class LocalStore {
   const LocalStore();
 
+  // Kept for hot-reload compatibility with previous class shape.
+  static const String _fileName = 'xvow_state.json';
   static const String _storageKey = 'xvow_state_json';
 
   Future<AppSnapshot?> loadSnapshot() async {
