@@ -313,8 +313,9 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
                           ),
                         );
                       } catch (error) {
-                        if (!mounted || !context.mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        final currentContext = context;
+                        if (!mounted || !currentContext.mounted) return;
+                        ScaffoldMessenger.of(currentContext).showSnackBar(
                           SnackBar(content: Text(error.toString())),
                         );
                       }
