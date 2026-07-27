@@ -99,10 +99,15 @@ class AppController extends Notifier<AppState> {
   Future<void> bootstrap() async {
     state = state.copyWith(isLoading: true, clearError: true);
     final loaded = await _localStore.loadSnapshot();
-    state = state.copyWith(
-      snapshot: loaded ?? AppSnapshot.initial(),
-      isLoading: false,
-    );
+    if (loaded != null) {
+      final currentSnapshot = state.snapshot;
+      final shouldReplaceCurrent = _isPlaceholderSnapshot(currentSnapshot) ||
+          loaded.updatedAt.isAfter(currentSnapshot.updatedAt);
+      if (shouldReplaceCurrent) {
+        state = state.copyWith(snapshot: loaded);
+      }
+    }
+    state = state.copyWith(isLoading: false);
     await _maybeSyncPull();
   }
 
@@ -382,6 +387,21 @@ class AppController extends Notifier<AppState> {
   Future<void> _persist() async {
     await _localStore.saveSnapshot(state.snapshot);
     unawaited(_maybeSyncPush());
+  }
+
+  bool _isPlaceholderSnapshot(AppSnapshot snapshot) {
+    return snapshot.userId == null &&
+        snapshot.objectives.isEmpty &&
+        snapshot.activeWeeklyVows.isEmpty &&
+        snapshot.history.isEmpty &&
+        snapshot.displayName == 'Utilisateur' &&
+        snapshot.email.isEmpty &&
+        snapshot.xp == 0 &&
+        snapshot.discipline == AppConstants.initialDiscipline &&
+        snapshot.projectHealth == AppConstants.initialProjectHealth &&
+        snapshot.currentStreak == 0 &&
+        snapshot.totalPenalties == 0 &&
+        snapshot.totalSavings == 0;
   }
 
   Future<void> _maybeSyncPull() async {

@@ -23,9 +23,9 @@ class ProfileScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Profil')),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 120),
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 120),
         children: [
-          Center(
+          AppCard(
             child: Column(
               children: [
                 Container(
@@ -49,10 +49,11 @@ class ProfileScreen extends ConsumerWidget {
                 const SizedBox(height: 16),
                 Text(
                   snapshot.displayName,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
+                const SizedBox(height: 6),
                 Text(
                   'Membre depuis ${snapshot.createdAt.year}',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -63,6 +64,11 @@ class ProfileScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 20),
+          const SectionHeader(
+            title: 'Statistiques',
+            subtitle: 'Votre progression globale',
+          ),
+          const SizedBox(height: 12),
           Wrap(
             spacing: 12,
             runSpacing: 12,
@@ -98,9 +104,9 @@ class ProfileScreen extends ConsumerWidget {
               children: [
                 Text(
                   'Économie',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text('Total économisé: ${snapshot.totalSavings} \$'),
@@ -110,13 +116,18 @@ class ProfileScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 16),
+          const SectionHeader(
+            title: 'Préférences',
+            subtitle: 'Contrôlez votre expérience',
+          ),
+          const SizedBox(height: 12),
           ListTile(
             tileColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
             ),
             title: const Text('Paiements · Information'),
-            subtitle: const Text('Détails du dépôt virtuel et des pénalités. '),
+            subtitle: const Text('Détails du dépôt virtuel et des pénalités.'),
             trailing: const Icon(Icons.chevron_right_rounded),
             onTap: () => context.push('/app/payment-info'),
           ),
@@ -124,7 +135,7 @@ class ProfileScreen extends ConsumerWidget {
           SwitchListTile.adaptive(
             value: snapshot.pushEnabled,
             onChanged: (value) => controller.setPushEnabled(value),
-            title: const Text('Push Notification'),
+            title: const Text('Notifications push'),
             subtitle: const Text('Firebase Cloud Messaging'),
             tileColor: Colors.white,
             shape: RoundedRectangleBorder(

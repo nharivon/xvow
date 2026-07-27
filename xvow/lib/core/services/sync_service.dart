@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
@@ -17,13 +19,7 @@ class SyncService {
       return;
     }
 
-    await Future.wait([
-      client.from('check_ins').delete().eq('user_id', userId),
-      client.from('weekly_vows').delete().eq('user_id', userId),
-      client.from('weekly_cycles').delete().eq('user_id', userId),
-      client.from('planned_vows').delete().eq('user_id', userId),
-      client.from('objectives').delete().eq('user_id', userId),
-    ]);
+    final updatedAt = DateTime.now().toIso8601String();
 
     await client.from('profiles').upsert({
       'id': userId,
@@ -36,33 +32,36 @@ class SyncService {
       'total_xp': snapshot.xp,
       'total_penalties': snapshot.totalPenalties,
       'total_savings': snapshot.totalSavings,
-      'updated_at': DateTime.now().toIso8601String(),
-    });
+      'updated_at': updatedAt,
+    }, onConflict: 'id');
 
-    if (snapshot.objectives.isNotEmpty) {
-      await client
-          .from('objectives')
-          .insert(
-            snapshot.objectives.map((objective) {
-              return {
-                'id': objective.id,
-                'user_id': userId,
-                'title': objective.title,
-                'description': objective.description,
-                'motivation': objective.motivation,
-                'target_weeks': AppConstants.objectiveDurationWeeks,
-                'completed_weeks': objective.completedWeeks,
-                'failed_weeks': objective.failedWeeks,
-                'health': objective.health,
-                'is_completed': objective.isCompleted,
-                'created_at': objective.createdAt.toIso8601String(),
-                'updated_at': DateTime.now().toIso8601String(),
-              };
-            }).toList(),
-          );
+    await client.from('app_snapshots').upsert({
+      'user_id': userId,
+      'payload': snapshot.toJson(),
+      'updated_at': updatedAt,
+    }, onConflict: 'user_id');
+
+    final objectiveRows = snapshot.objectives.map((objective) {
+      return {
+        'id': objective.id,
+        'user_id': userId,
+        'title': objective.title,
+        'description': objective.description,
+        'motivation': objective.motivation,
+        'target_weeks': AppConstants.objectiveDurationWeeks,
+        'completed_weeks': objective.completedWeeks,
+        'failed_weeks': objective.failedWeeks,
+        'health': objective.health,
+        'is_completed': objective.isCompleted,
+        'created_at': objective.createdAt.toIso8601String(),
+        'updated_at': updatedAt,
+      };
+    }).toList();
+    if (objectiveRows.isNotEmpty) {
+      await client.from('objectives').upsert(objectiveRows, onConflict: 'id');
     }
 
-    final plannedVows = snapshot.objectives
+    final plannedVowRows = snapshot.objectives
         .expand(
           (objective) => objective.plannedVows.map((plannedVow) {
             return {
@@ -71,29 +70,28 @@ class SyncService {
               'objective_id': objective.id,
               'week_index': plannedVow.weekIndex,
               'title': plannedVow.title,
-              'created_at': DateTime.now().toIso8601String(),
-              'updated_at': DateTime.now().toIso8601String(),
+              'created_at': updatedAt,
+              'updated_at': updatedAt,
             };
           }),
         )
         .toList();
-    if (plannedVows.isNotEmpty) {
-      await client.from('planned_vows').insert(plannedVows);
+    if (plannedVowRows.isNotEmpty) {
+      await client.from('planned_vows').upsert(plannedVowRows, onConflict: 'id');
     }
 
-    final activeCycleId = snapshot.activeWeekId;
-    if (activeCycleId != null && snapshot.activeWeeklyVows.isNotEmpty) {
+    if (snapshot.activeWeekId != null && snapshot.activeWeeklyVows.isNotEmpty) {
       final lockedUntil = snapshot.activeWeekLaunchedAt == null
           ? DateTime.now().add(const Duration(days: 7)).toIso8601String()
           : snapshot.activeWeekLaunchedAt!
                 .add(const Duration(days: 7))
                 .toIso8601String();
-      await client.from('weekly_cycles').insert({
-        'id': activeCycleId,
+
+      final activeCycleRow = {
+        'id': snapshot.activeWeekId,
         'user_id': userId,
         'launched_at':
-            snapshot.activeWeekLaunchedAt?.toIso8601String() ??
-            DateTime.now().toIso8601String(),
+            snapshot.activeWeekLaunchedAt?.toIso8601String() ?? updatedAt,
         'completed_at': null,
         'locked_until': lockedUntil,
         'status': 'active',
@@ -101,46 +99,50 @@ class SyncService {
         'penalty_paid': 0,
         'xp_gained': 0,
         'streak_reset': false,
-        'created_at': DateTime.now().toIso8601String(),
-        'updated_at': DateTime.now().toIso8601String(),
-      });
+        'created_at': updatedAt,
+        'updated_at': updatedAt,
+      };
+      await client.from('weekly_cycles').upsert(activeCycleRow, onConflict: 'id');
 
       final activeWeeklyRows = snapshot.activeWeeklyVows.map((vow) {
         return {
           'id': vow.id,
           'user_id': userId,
-          'weekly_cycle_id': activeCycleId,
+          'weekly_cycle_id': snapshot.activeWeekId,
           'objective_id': vow.sourceObjectiveId,
           'planned_vow_id': vow.sourcePlannedVowId,
           'title': vow.title,
           'check_in_count': vow.checkInCount,
           'is_completed': vow.meetsWeeklyThreshold,
           'created_at': vow.launchedAt.toIso8601String(),
-          'updated_at': DateTime.now().toIso8601String(),
+          'updated_at': updatedAt,
         };
       }).toList();
-      await client.from('weekly_vows').insert(activeWeeklyRows);
+      if (activeWeeklyRows.isNotEmpty) {
+        await client.from('weekly_vows').upsert(activeWeeklyRows, onConflict: 'id');
+      }
 
-      final checkIns = snapshot.activeWeeklyVows
+      final checkInRows = snapshot.activeWeeklyVows
           .expand(
             (vow) => vow.checkInDays.map((checkedOn) {
               return {
+                'id': _uuid.v4(),
                 'user_id': userId,
                 'weekly_vow_id': vow.id,
                 'checked_on': checkedOn,
-                'created_at': DateTime.now().toIso8601String(),
-                'updated_at': DateTime.now().toIso8601String(),
+                'created_at': updatedAt,
+                'updated_at': updatedAt,
               };
             }),
           )
           .toList();
-      if (checkIns.isNotEmpty) {
-        await client.from('check_ins').insert(checkIns);
+      if (checkInRows.isNotEmpty) {
+        await client.from('check_ins').upsert(checkInRows, onConflict: 'id');
       }
     }
 
     if (snapshot.history.isNotEmpty) {
-      final completedCycles = snapshot.history.map((entry) {
+      final completedCycleRows = snapshot.history.map((entry) {
         return {
           'id': entry.id,
           'user_id': userId,
@@ -153,66 +155,84 @@ class SyncService {
           'xp_gained': entry.xpGained,
           'streak_reset': entry.streakReset,
           'created_at': entry.completedAt.toIso8601String(),
-          'updated_at': entry.completedAt.toIso8601String(),
+          'updated_at': updatedAt,
         };
       }).toList();
-      await client.from('weekly_cycles').insert(completedCycles);
+      await client.from('weekly_cycles').upsert(completedCycleRows, onConflict: 'id');
 
       final completedWeeklyRows = snapshot.history
           .expand(
             (entry) => entry.vowStats.asMap().entries.map((entryData) {
-              final index = entryData.key;
-              final vowStat = entryData.value;
-              final weeklyVowId = _historyWeeklyVowId(entry.id, index);
+              final weeklyVowId = _historyWeeklyVowId(entry.id, entryData.key);
               return {
                 'id': weeklyVowId,
                 'user_id': userId,
                 'weekly_cycle_id': entry.id,
-                'objective_id': vowStat.objectiveId,
-                'planned_vow_id': vowStat.plannedVowId,
-                'title': vowStat.vowTitle,
-                'check_in_count': vowStat.checkedDays,
-                'is_completed': vowStat.success,
+                'objective_id': entryData.value.objectiveId,
+                'planned_vow_id': entryData.value.plannedVowId,
+                'title': entryData.value.vowTitle,
+                'check_in_count': entryData.value.checkedDays,
+                'is_completed': entryData.value.success,
                 'created_at': entry.completedAt.toIso8601String(),
-                'updated_at': entry.completedAt.toIso8601String(),
+                'updated_at': updatedAt,
               };
             }),
           )
           .toList();
       if (completedWeeklyRows.isNotEmpty) {
-        await client.from('weekly_vows').insert(completedWeeklyRows);
+        await client.from('weekly_vows').upsert(completedWeeklyRows, onConflict: 'id');
       }
 
       final checkInRows = snapshot.history
           .expand(
             (entry) => entry.vowStats.asMap().entries.expand((entryData) {
-              final index = entryData.key;
-              final vowStat = entryData.value;
-              final weeklyVowId = _historyWeeklyVowId(entry.id, index);
-              return List.generate(vowStat.checkedDays, (dayIndex) {
+              final weeklyVowId = _historyWeeklyVowId(entry.id, entryData.key);
+              return List.generate(entryData.value.checkedDays, (dayIndex) {
                 final checkedOn = DateTime(
                   entry.completedAt.year,
                   entry.completedAt.month,
                   entry.completedAt.day,
-                ).subtract(Duration(days: vowStat.checkedDays - dayIndex - 1));
+                ).subtract(Duration(days: entryData.value.checkedDays - dayIndex - 1));
                 return {
+                  'id': _uuid.v4(),
                   'user_id': userId,
                   'weekly_vow_id': weeklyVowId,
                   'checked_on': checkedOn.toIso8601String().split('T').first,
                   'created_at': entry.completedAt.toIso8601String(),
-                  'updated_at': entry.completedAt.toIso8601String(),
+                  'updated_at': updatedAt,
                 };
               });
             }),
           )
           .toList();
       if (checkInRows.isNotEmpty) {
-        await client.from('check_ins').insert(checkInRows);
+        await client.from('check_ins').upsert(checkInRows, onConflict: 'weekly_vow_id,checked_on');
       }
     }
   }
 
   Future<AppSnapshot?> pullSnapshot(String userId) async {
+    final snapshotRow = await client
+        .from('app_snapshots')
+        .select()
+        .eq('user_id', userId)
+        .maybeSingle();
+    if (snapshotRow != null) {
+      final payload = snapshotRow['payload'];
+      if (payload is Map) {
+        final data = Map<String, dynamic>.from(payload as Map);
+        data['userId'] = userId;
+        return AppSnapshot.fromJson(data);
+      }
+      if (payload is String && payload.isNotEmpty) {
+        final decoded = jsonDecode(payload);
+        if (decoded is Map<String, dynamic>) {
+          decoded['userId'] = userId;
+          return AppSnapshot.fromJson(decoded);
+        }
+      }
+    }
+
     final profile = await client
         .from('profiles')
         .select()

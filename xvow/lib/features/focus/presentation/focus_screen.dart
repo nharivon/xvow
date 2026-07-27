@@ -26,22 +26,24 @@ class _FocusScreenState extends ConsumerState<FocusScreen> {
     final appState = ref.watch(appControllerProvider);
     final snapshot = appState.snapshot;
     final today = DateFormat('EEEE d MMMM', 'fr_FR').format(DateTime.now());
+    final firstName = snapshot.displayName.split(' ').firstOrNull ?? 'there';
+
     return Scaffold(
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Bonjour ${snapshot.displayName.split(' ').first} 👋',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+              'Bonjour $firstName 👋',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
             ),
             Text(
               today,
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: const Color(0xFF64748B)),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: const Color(0xFF64748B),
+              ),
             ),
           ],
         ),
@@ -83,9 +85,10 @@ class _FocusScreenState extends ConsumerState<FocusScreen> {
                     width: 76,
                     height: 76,
                     decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withValues(alpha: 0.1),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.12),
                       shape: BoxShape.circle,
                     ),
                     child: Center(
@@ -103,9 +106,9 @@ class _FocusScreenState extends ConsumerState<FocusScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            SectionHeader(
+            const SectionHeader(
               title: 'Vos Promesses',
-              subtitle: '${snapshot.activeWeeklyVows.length} / 3 terminées',
+              subtitle: 'Suivez vos engagements du jour',
             ),
             const SizedBox(height: 12),
             if (snapshot.activeWeeklyVows.isEmpty)
@@ -128,9 +131,10 @@ class _FocusScreenState extends ConsumerState<FocusScreen> {
                             Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.primary.withValues(alpha: 0.1),
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primary
+                                    .withValues(alpha: 0.12),
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
@@ -161,10 +165,9 @@ class _FocusScreenState extends ConsumerState<FocusScreen> {
                                 ],
                               ),
                             ),
-                            Text(
-                              '${vow.checkInCount} / 7 jours',
-                              style: Theme.of(context).textTheme.labelLarge
-                                  ?.copyWith(fontWeight: FontWeight.w800),
+                            StatusBadge(
+                              label: checked ? 'OK' : 'À faire',
+                              success: checked,
                             ),
                           ],
                         ),
