@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:xvow/shared/widgets/text_input.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/state/app_controller.dart';
@@ -40,57 +41,43 @@ class _CreateObjectiveScreenState extends ConsumerState<CreateObjectiveScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Créer un Objectif')),
+      appBar: AppBar(title: const Text('Créer un Objectif', style: TextStyle(fontSize: 14))),
       body: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 120),
           children: [
+            const SizedBox(height: 17),
             AppCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 7,
                 children: [
                   Text(
-                    'Étape 1 · Donnez une direction claire.',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    'Étape 1 · Votre objectif dans 5 semaines',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w800,
+                      color: const Color(0xFF1F4E5F),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _titleController,
-                    decoration: const InputDecoration(
-                      labelText: 'Titre de l’objectif',
-                    ),
-                    validator: (value) =>
-                        (value == null || value.trim().isEmpty)
-                        ? 'Le titre est obligatoire.'
-                        : null,
+                  const SizedBox(height: 20),
+                  TextInput(
+                    controller: _titleController, 
+                    labelText: 'Titre de l’objectif',
+                    hintText: 'Ex: apprendre à coder en Dart',
                   ),
-                  const SizedBox(height: 12),
-                  TextFormField(
+                  const SizedBox(height: 20),
+                  TextInput(
                     controller: _descriptionController,
+                    labelText: 'Description',
+                    hintText: 'Dart est un langage de programmation orienté objet, développé par Google, qui est utilisé pour créer des applications mobiles, web et de bureau. Il est souvent utilisé avec le framework Flutter pour développer des applications multiplateformes.',
                     maxLines: 3,
-                    decoration: const InputDecoration(labelText: 'Description'),
                     validator: (value) =>
                         (value == null || value.trim().isEmpty)
                         ? 'La description est obligatoire.'
                         : null,
                   ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _motivationController,
-                    maxLines: 2,
-                    decoration: const InputDecoration(
-                      labelText: 'Motivation (optionnelle)',
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    initialValue: '5 semaines',
-                    enabled: false,
-                    decoration: const InputDecoration(labelText: 'Durée'),
-                  ),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
@@ -100,24 +87,31 @@ class _CreateObjectiveScreenState extends ConsumerState<CreateObjectiveScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Étape 2 · Ajoutez jusqu’à 5 vœux planifiés.',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    'Étape 2 · Ajoutez au maximum 5 défis',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w800,
+                      color: const Color(0xFF1F4E5F),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
                   ...List.generate(
                     AppConstants.maxPlannedVowsPerObjective,
                     (index) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: TextFormField(
+                      padding: const EdgeInsets.only(bottom: 20),
+                      child: TextInput(
                         controller: _vowControllers[index],
-                        decoration: InputDecoration(
-                          labelText: 'Promesse ${index + 1}',
-                        ),
+                        labelText: 'Défi ${index + 1}',
+                        hintText: switch (index) {
+                          0 => 'Ex: faire 10 pompes par jour',
+                          1 => 'Ex: courir 3 km tous les matins',
+                          2 => 'Ex: méditer 15 minutes chaque soir',
+                          3 => 'Ex: lire un chapitre d’un livre chaque jour',
+                          4 => 'Ex: écrire un journal de gratitude chaque soir',
+                          _ => '',
+                        },
                         validator: index == 0
                             ? (value) => (value == null || value.trim().isEmpty)
-                                  ? 'Ajoutez au moins une promesse.'
+                                  ? 'Ajoutez au moins un défi.'
                                   : null
                             : null,
                       ),
@@ -131,9 +125,10 @@ class _CreateObjectiveScreenState extends ConsumerState<CreateObjectiveScreen> {
               Text(_error!, style: const TextStyle(color: Colors.redAccent)),
             const SizedBox(height: 12),
             PrimaryButton(
-              label: 'Enregistrer l’Objectif',
+              label: 'Créer',
               loading: _loading,
               onPressed: _save,
+              
             ),
           ],
         ),

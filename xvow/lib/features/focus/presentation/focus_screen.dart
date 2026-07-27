@@ -26,26 +26,14 @@ class _FocusScreenState extends ConsumerState<FocusScreen> {
     final appState = ref.watch(appControllerProvider);
     final snapshot = appState.snapshot;
     final today = DateFormat('EEEE d MMMM', 'fr_FR').format(DateTime.now());
-    final firstName = snapshot.displayName.split(' ').firstOrNull ?? 'there';
 
     return Scaffold(
       appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Bonjour $firstName 👋',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            Text(
-              today,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+        title: Text(
+              toBeginningOfSentenceCase(today, 'en_US'),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: const Color(0xFF64748B),
-              ),
             ),
-          ],
         ),
         actions: [
           IconButton(
@@ -60,60 +48,35 @@ class _FocusScreenState extends ConsumerState<FocusScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 120),
           children: [
+            const SizedBox(height: 20),
             AppCard(
               child: Row(
                 children: [
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                    child:
                         Text(
                           'Niveau ${snapshot.level}',
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.w800),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        )
+                  ),
+                  Text(
                           '${snapshot.xpIntoLevel} / ${snapshot.xpForNextLevel} XP',
                           style: Theme.of(context).textTheme.bodyMedium
                               ?.copyWith(color: const Color(0xFF64748B)),
                         ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    width: 76,
-                    height: 76,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .primary
-                          .withValues(alpha: 0.12),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: Text(
-                        '${snapshot.level}',
-                        style: Theme.of(context).textTheme.headlineMedium
-                            ?.copyWith(
-                              fontWeight: FontWeight.w900,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 40),
             const SectionHeader(
-              title: 'Vos Promesses',
+              title: 'Défis en cours:',
               subtitle: 'Suivez vos engagements du jour',
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
             if (snapshot.activeWeeklyVows.isEmpty)
               const EmptyStateView(
-                title: 'Aucune promesse active',
+                title: 'Aucun défi actif',
                 message:
                     'Lancez votre semaine pour afficher vos engagements de focus.',
               )
@@ -121,28 +84,78 @@ class _FocusScreenState extends ConsumerState<FocusScreen> {
               ...snapshot.activeWeeklyVows.map((vow) {
                 final checked = vow.checkedToday(DateTime.now());
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.only(bottom: 30),
                   child: AppCard(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .primary
-                                    .withValues(alpha: 0.12),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.track_changes_rounded,
-                                color: Theme.of(context).colorScheme.primary,
+                            SizedBox(
+                              width: 36,
+                              height: 36,
+                              child: GestureDetector(
+                                onTap: () => ref
+                                    .read(appControllerProvider.notifier)
+                                    .toggleCheckIn(vow.id),
+
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 220),
+                                  width: 32,
+                                  height: 32,
+
+                                  decoration: BoxDecoration(
+                                    color: checked
+                                        ? const Color(0xFF16A34A).withValues(alpha: 0.12)
+                                        : Theme.of(context)
+                                            .colorScheme
+                                            .primary
+                                            .withValues(alpha: 0.08),
+
+                                    borderRadius: BorderRadius.circular(10),
+
+                                    border: Border.all(
+                                      color: checked
+                                          ? const Color(0xFF16A34A).withValues(alpha: 0.35)
+                                          : Theme.of(context)
+                                              .colorScheme
+                                              .primary
+                                              .withValues(alpha: 0.25),
+                                      width: 1.5,
+                                    ),
+                                  ),
+
+                                  child: AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 200),
+
+                                    transitionBuilder: (child, animation) {
+                                      return ScaleTransition(
+                                        scale: animation,
+                                        child: FadeTransition(
+                                          opacity: animation,
+                                          child: child,
+                                        ),
+                                      );
+                                    },
+
+                                    child: checked
+                                        ? const Icon(
+                                            Icons.check_rounded,
+                                            key: ValueKey(true),
+                                            size: 21,
+                                            color: Color(0xFF16A34A),
+                                          )
+                                        : Icon(
+                                            Icons.circle_outlined,
+                                            key: const ValueKey(false),
+                                            size: 17,
+                                            color: Theme.of(context).colorScheme.primary,
+                                          ),
+                                  ),
+                                ),
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: 20),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,8 +164,8 @@ class _FocusScreenState extends ConsumerState<FocusScreen> {
                                     vow.title,
                                     style: Theme.of(context)
                                         .textTheme
-                                        .titleMedium
-                                        ?.copyWith(fontWeight: FontWeight.w800),
+                                        .titleSmall
+                                        ?.copyWith(fontWeight: FontWeight.w600),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
@@ -165,48 +178,24 @@ class _FocusScreenState extends ConsumerState<FocusScreen> {
                                 ],
                               ),
                             ),
-                            StatusBadge(
-                              label: checked ? 'OK' : 'À faire',
-                              success: checked,
-                            ),
+                            // StatusBadge(
+                            //   label: checked ? 'OK' : 'À faire',
+                            //   success: checked,
+                            // ),
+                            
                           ],
-                        ),
-                        const SizedBox(height: 14),
-                        LinearProgressIndicator(value: vow.checkInCount / 7),
-                        const SizedBox(height: 14),
-                        SizedBox(
-                          height: 52,
-                          child: FilledButton(
-                            onPressed: () => ref
-                                .read(appControllerProvider.notifier)
-                                .toggleCheckIn(vow.id),
-                            style: FilledButton.styleFrom(
-                              backgroundColor: checked
-                                  ? const Color(0xFF16A34A)
-                                  : Theme.of(context).colorScheme.primary,
-                            ),
-                            child: AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 220),
-                              child: Text(
-                                checked
-                                    ? 'Check-in validé'
-                                    : 'Valider le check-in',
-                                key: ValueKey(checked),
-                              ),
-                            ),
-                          ),
                         ),
                       ],
                     ),
                   ),
                 );
               }),
-            const SizedBox(height: 20),
+            const SizedBox(height: 40),
             const SectionHeader(
               title: 'Vos Objectifs',
-              subtitle: 'Affichés à partir des promesses actives',
+              subtitle: 'Affichés à partir des défis actives',
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
             if (snapshot.activeObjectives.isEmpty)
               const EmptyStateView(
                 title: 'Aucun objectif actif',
@@ -225,8 +214,8 @@ class _FocusScreenState extends ConsumerState<FocusScreen> {
                             Expanded(
                               child: Text(
                                 objective.title,
-                                style: Theme.of(context).textTheme.titleMedium
-                                    ?.copyWith(fontWeight: FontWeight.w800),
+                                style: Theme.of(context).textTheme.titleSmall
+                                    ?.copyWith(fontWeight: FontWeight.w500, color: const Color(0xFF1F4E5F)),
                               ),
                             ),
                             Text(
@@ -249,7 +238,7 @@ class _FocusScreenState extends ConsumerState<FocusScreen> {
                             Text(
                               '${(objective.progressRatio * 100).round()} %',
                               style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(fontWeight: FontWeight.w700),
+                                  ?.copyWith(fontWeight: FontWeight.w500),
                             ),
                           ],
                         ),
@@ -258,13 +247,13 @@ class _FocusScreenState extends ConsumerState<FocusScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Santé',
+                              'Health',
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                             Text(
-                              '${objective.health} / 100',
+                              '${objective.health} %',
                               style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(fontWeight: FontWeight.w700),
+                                  ?.copyWith(fontWeight: FontWeight.w500),
                             ),
                           ],
                         ),

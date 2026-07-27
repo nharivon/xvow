@@ -52,6 +52,7 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 120),
         children: [
+          const SizedBox(height: 20),
           AppCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,20 +74,20 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
                         color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 20),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             'Planifiez votre semaine',
-                            style: Theme.of(context).textTheme.titleMedium
+                            style: Theme.of(context).textTheme.titleSmall
                                 ?.copyWith(fontWeight: FontWeight.w800),
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Structurez vos objectifs, puis déployez vos promesses.',
-                            style: Theme.of(context).textTheme.bodyMedium
+                            'Structurez vos objectifs.',
+                            style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(color: const Color(0xFF64748B)),
                           ),
                         ],
@@ -97,7 +98,7 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           AppCard(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -128,7 +129,7 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 40),
           if (_segment == 'plan') ...[
             if (!canCreate)
               const Padding(
@@ -143,7 +144,7 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
               const EmptyStateView(
                 title: 'Aucun objectif actif',
                 message:
-                    'Créez votre premier objectif pour bâtir votre discipline.',
+                    'Créez votre premier objectif',
               ),
             if (activeObjectives.isNotEmpty) ...[
               const SectionHeader(
@@ -197,7 +198,7 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
                               Text(
                                 '${objective.completedWeeks}/${AppConstants.objectiveDurationWeeks} semaines',
                                 style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(fontWeight: FontWeight.w700),
+                                    ?.copyWith(fontWeight: FontWeight.w500),
                               ),
                             ],
                           ),
@@ -215,15 +216,15 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Sélectionnez directement vos promesses pour cette semaine.',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    'Checkez vos défis pour cette semaine.',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w800,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Vous pouvez lancer jusqu’à 3 promesses en une seule fois.',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: const Color(0xFF64748B),
                     ),
                   ),
@@ -239,23 +240,23 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
                         onPressed: _selectedPlannedVowIds.isEmpty
                             ? null
                             : () => setState(_selectedPlannedVowIds.clear),
-                        child: const Text('Tout effacer'),
+                        child: const Text('Tout effacer', style: TextStyle(fontSize: 14)),
                       ),
                     ],
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 40),
             const SectionHeader(
-              title: 'Promesses disponibles',
+              title: 'Défis disponibles',
               subtitle: 'Cochez celles que vous voulez déployer',
             ),
             const SizedBox(height: 12),
             if (plannedVows.isEmpty)
               const EmptyStateView(
-                title: 'Aucune promesse planifiée',
-                message: 'Ajoutez d’abord des vœux à vos objectifs.',
+                title: 'Aucune défi planifié',
+                message: 'Ajoutez d’abord des défis à vos objectifs.',
               ),
             if (plannedVows.isNotEmpty)
               ...plannedVows.map(
@@ -265,6 +266,17 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
                     padding: const EdgeInsets.all(16),
                     child: CheckboxListTile.adaptive(
                       value: _selectedPlannedVowIds.contains(tile.plannedVowId),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 4,
+                        ),
+
+
+                        activeColor: Theme.of(context).colorScheme.primary,
+
+                        checkboxShape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
+                        ),
                       onChanged: (value) {
                         setState(() {
                           if (value == true) {
@@ -279,7 +291,7 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
                       title: Text(
                         tile.title,
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                       subtitle: Text(
@@ -289,12 +301,11 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
                         ),
                       ),
                       controlAffinity: ListTileControlAffinity.leading,
-                      contentPadding: EdgeInsets.zero,
                     ),
                   ),
                 ),
               ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             PrimaryButton(
               label: 'Lancer la semaine',
               loading: appState.isSyncing,

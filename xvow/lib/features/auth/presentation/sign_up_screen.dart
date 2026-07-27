@@ -53,8 +53,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             children: [
               const SizedBox(height: 28),
               Text(
-                'Un engagement solide commence ici.',
-                style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                'Engagement',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w800,
                   height: 1.0,
                 ),
@@ -62,11 +62,11 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
               const SizedBox(height: 12),
               Text(
                 'Choisissez peu, mais choisissez fort. XVOW vous aide à transformer vos promesses en preuves.',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   color: const Color(0xFF475569),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 40),
               AppCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,18 +75,18 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     const SizedBox(height: 20),
                     Text(
                       'Créez votre espace d’auto-responsabilité.',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w800,
                       ),
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      'Une interface minimaliste, des promesses verrouillées et une semaine à la fois.',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      'Une interface minimaliste, des défis verrouillées et une semaine à la fois.',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: const Color(0xFF64748B),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 30),
                     PrimaryButton(
                       label: 'S’inscrire avec Google',
                       loading: _loading,

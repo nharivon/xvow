@@ -25,12 +25,13 @@ class ProfileScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 120),
         children: [
+          const SizedBox(height: 20),
           AppCard(
             child: Column(
               children: [
                 Container(
-                  width: 96,
-                  height: 96,
+                  width: 70,
+                  height: 70,
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
                     color: Color(0xFF1F4E5F),
@@ -49,7 +50,7 @@ class ProfileScreen extends ConsumerWidget {
                 const SizedBox(height: 16),
                 Text(
                   snapshot.displayName,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -63,12 +64,12 @@ class ProfileScreen extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 30),
           const SectionHeader(
             title: 'Statistiques',
             subtitle: 'Votre progression globale',
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 20),
           Wrap(
             spacing: 12,
             runSpacing: 12,
@@ -97,7 +98,7 @@ class ProfileScreen extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 40),
           AppCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,56 +116,52 @@ class ProfileScreen extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 40),
           const SectionHeader(
             title: 'Préférences',
             subtitle: 'Contrôlez votre expérience',
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 20),
           ListTile(
             tileColor: Colors.white,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(15),
             ),
-            title: const Text('Paiements · Information'),
-            subtitle: const Text('Détails du dépôt virtuel et des pénalités.'),
+            title: const Text('Paiements - Information'),
             trailing: const Icon(Icons.chevron_right_rounded),
             onTap: () => context.push('/app/payment-info'),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 20),
           SwitchListTile.adaptive(
             value: snapshot.pushEnabled,
             onChanged: (value) => controller.setPushEnabled(value),
             title: const Text('Notifications push'),
-            subtitle: const Text('Firebase Cloud Messaging'),
             tileColor: Colors.white,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(17),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 20),
           ListTile(
             tileColor: Colors.white,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(17),
             ),
             title: const Text('Se déconnecter'),
             leading: const Icon(Icons.logout_rounded),
             onTap: () async => controller.signOut(),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 20),
           ListTile(
             tileColor: Colors.white,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(17),
             ),
             title: const Text(
               'Supprimer le compte',
-              style: TextStyle(color: Colors.redAccent),
             ),
             leading: const Icon(
               Icons.delete_forever_rounded,
-              color: Colors.redAccent,
             ),
             onTap: () async {
               final confirmed = await showDialog<bool>(

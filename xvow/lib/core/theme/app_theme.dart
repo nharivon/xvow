@@ -4,7 +4,7 @@ class AppTheme {
   AppTheme._();
 
   static ThemeData get light {
-    const seed = Color(0xFF1F4E5F);
+    const seed = Color.fromARGB(255, 27, 108, 138);
     final scheme = ColorScheme.fromSeed(
       seedColor: seed,
       brightness: Brightness.light,
@@ -48,7 +48,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18),
           ),
-          textStyle: const TextStyle(fontWeight: FontWeight.w700),
+          textStyle: const TextStyle(fontWeight: FontWeight.w700, letterSpacing: 1),
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(
@@ -57,7 +57,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18),
           ),
-          textStyle: const TextStyle(fontWeight: FontWeight.w700),
+          textStyle: const TextStyle(fontWeight: FontWeight.w500, letterSpacing: 1),
         ),
       ),
       chipTheme: ChipThemeData(

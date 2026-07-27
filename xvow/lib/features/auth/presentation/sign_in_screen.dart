@@ -54,39 +54,39 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               const SizedBox(height: 32),
               Text(
                 'Bienvenue.',
-                style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w800,
                   height: 1.0,
                 ),
               ),
               const SizedBox(height: 12),
               Text(
-                'Aujourd’hui est une nouvelle occasion de tenir vos promesses.',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                'Une nouvelle occasion de reprendre le contrôle.',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   color: const Color(0xFF475569),
                 ),
               ),
               const SizedBox(height: 24),
               const _IntroIllustration(),
-              const SizedBox(height: 24),
+              const SizedBox(height: 40),
               AppCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'XVOW vous aide à vous engager avec clarté, pas avec surcharge.',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w800,
                       ),
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      'Définissez quelques vœux puissants, verrouillez votre semaine et avancez avec une discipline mesurable.',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      'Définissez quelques défis puissants, verrouillez votre semaine et avancez avec une discipline mesurable.',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: const Color(0xFF64748B),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 30),
                     PrimaryButton(
                       label: 'Continuer avec Google',
                       loading: _loading,

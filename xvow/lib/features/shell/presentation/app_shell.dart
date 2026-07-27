@@ -61,7 +61,7 @@ class AppShell extends StatelessWidget {
                               tab.icon,
                               size: 22,
                               color: selected
-                                  ? const Color(0xFF1F4E5F)
+                                  ? const Color.fromARGB(255, 197, 138, 28)
                                   : const Color(0xFF64748B),
                             ),
                           ),
@@ -72,7 +72,7 @@ class AppShell extends StatelessWidget {
                               fontWeight: FontWeight.w700,
                               fontSize: 12,
                               color: selected
-                                  ? const Color(0xFF1F4E5F)
+                                  ? const Color.fromARGB(255, 197, 138, 28)
                                   : const Color(0xFF64748B),
                             ),
                           ),
