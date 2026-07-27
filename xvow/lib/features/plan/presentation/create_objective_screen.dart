@@ -162,9 +162,10 @@ class _CreateObjectiveScreenState extends ConsumerState<CreateObjectiveScreen> {
             motivation: _motivationController.text,
             plannedVows: vows,
           );
-      if (mounted) {
-        context.pop();
+      if (!mounted || !context.mounted) {
+        return;
       }
+      context.pop();
     } catch (error) {
       setState(() => _error = error.toString().replaceFirst('Bad state: ', ''));
     } finally {

@@ -302,17 +302,18 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
                   ? null
                   : () async {
                       try {
+                        final currentContext = context;
                         await ref
                             .read(appControllerProvider.notifier)
                             .launchWeek(_selectedPlannedVowIds.toList());
-                        if (!mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        if (!mounted || !currentContext.mounted) return;
+                        ScaffoldMessenger.of(currentContext).showSnackBar(
                           const SnackBar(
                             content: Text('Semaine lancée et synchronisée. '),
                           ),
                         );
                       } catch (error) {
-                        if (!mounted) return;
+                        if (!mounted || !context.mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text(error.toString())),
                         );

@@ -27,10 +27,12 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     ) {
       final user = next.asData?.value;
       if (user != null && mounted) {
+        final navigatorContext = context;
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            context.go('/app/focus');
+          if (!mounted || !navigatorContext.mounted) {
+            return;
           }
+          navigatorContext.go('/app/focus');
         });
       }
     });

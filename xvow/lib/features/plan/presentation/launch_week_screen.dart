@@ -116,8 +116,9 @@ class _LaunchWeekScreenState extends ConsumerState<LaunchWeekScreen> {
   }
 
   Future<void> _confirmLaunch() async {
+    final currentContext = context;
     final confirmed = await showDialog<bool>(
-      context: context,
+      context: currentContext,
       builder: (context) => AlertDialog(
         title: const Text('Paiement virtuel'),
         content: const Text(
@@ -146,9 +147,10 @@ class _LaunchWeekScreenState extends ConsumerState<LaunchWeekScreen> {
       await ref
           .read(appControllerProvider.notifier)
           .launchWeek(_selected.toList());
-      if (mounted) {
-        context.go('/app/focus');
+      if (!mounted || !currentContext.mounted) {
+        return;
       }
+      currentContext.go('/app/focus');
     } catch (error) {
       setState(() => _error = error.toString().replaceFirst('Bad state: ', ''));
     } finally {
