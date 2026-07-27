@@ -19,11 +19,11 @@ class AppShell extends StatelessWidget {
       body: navigationShell,
       bottomNavigationBar: SafeArea(
         child: Container(
-          margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+          // margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(28),
+            // borderRadius: BorderRadius.circular(28),
             border: Border.all(color: const Color(0xFFF1E7DB)),
             boxShadow: const [
               BoxShadow(
