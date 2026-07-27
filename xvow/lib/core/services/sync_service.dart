@@ -220,7 +220,7 @@ class SyncService {
     if (snapshotRow != null) {
       final payload = snapshotRow['payload'];
       if (payload is Map) {
-        final data = Map<String, dynamic>.from(payload as Map);
+        final data = Map<String, dynamic>.from(payload);
         data['userId'] = userId;
         return AppSnapshot.fromJson(data);
       }

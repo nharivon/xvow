@@ -169,7 +169,7 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
                                       ?.copyWith(fontWeight: FontWeight.w800),
                                 ),
                               ),
-                              StatusBadge(
+                              const StatusBadge(
                                 label: 'Actif',
                                 success: true,
                               ),
